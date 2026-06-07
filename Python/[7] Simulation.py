@@ -342,7 +342,7 @@ def main(input_type="raw", input_mode="windowed"):
     print(f"✅ Saved: {output_subjects_path}")
 
 def run_all_modes():
-    feature_modes = ["vg", "raw_vg"]
+    feature_modes = ["raw", "vg", "raw_vg"]
     input_modes = ["windowed", "aggregated"]
 
     for feature_mode in feature_modes:

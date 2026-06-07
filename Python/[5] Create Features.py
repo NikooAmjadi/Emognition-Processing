@@ -6,7 +6,7 @@ import warnings
 from scipy.stats import kurtosis, skew
 
 FILE_PATH = "emognition_complete.h5"
-OUTPUT_PATH = "emognition_final_dataset_windowed.csv"
+OUTPUT_PATH = "emognition_raw_features.csv"
 
 SUBJECTS = range(22, 65)
 

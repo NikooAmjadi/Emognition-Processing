@@ -16,7 +16,11 @@ import xgboost as xgb
 import warnings
 warnings.filterwarnings("ignore")
 
-DATASET_PATH = "emognition_visibility_graph_dataset_windowed.csv"
+FEATURE_MODE = "raw"          # raw | vg | raw_vg
+INPUT_MODE = "windowed"       # windowed | aggregated
+
+RAW_DATASET_PATH = "emognition_raw_features.csv"
+VG_DATASET_PATH = "emognition_vg_features.csv"
 
 SUBJECT_COL = "subject_id"
 EMOTION_COL = "emotion"
@@ -30,32 +34,133 @@ WINDOW_COLUMNS = [
     "overlap_sec"
 ]
 
-OUTPUT_SUMMARY_PATH = "simulation_results_vg_metrics.csv"
+GROUP_COLS = [SUBJECT_COL, EMOTION_COL, LABEL_COL]
+
+OUTPUT_SUMMARY_PATH = "simulation_results_{input_type}_{mode}.csv"
+OUTPUT_SUBJECTS_PATH = "subjects_results_{input_type}_{mode}.csv"
 
 RANDOM_STATE = 42
 N_JOBS_SEARCH = 1
+
 N_JOBS_XGB = -1
 
 INNER_CV_SPLITS = 3
 SCORING = "f1"
 
+def load_dataset(input_type):
+    if input_type == "raw":
+        return pd.read_csv(RAW_DATASET_PATH)
 
-def main():
-    df = pd.read_csv(DATASET_PATH)
+    if input_type == "vg":
+        return pd.read_csv(VG_DATASET_PATH)
+
+    if input_type == "raw_vg":
+        raw_df = pd.read_csv(RAW_DATASET_PATH)
+        vg_df = pd.read_csv(VG_DATASET_PATH)
+
+        align_cols = [SUBJECT_COL, EMOTION_COL] + WINDOW_COLUMNS
+
+        if not raw_df[align_cols].equals(vg_df[align_cols]):
+            raise ValueError("Raw and VG files are not aligned. Cannot use np.hstack safely.")
+
+        raw_feature_cols = [
+            col for col in raw_df.columns
+            if col not in GROUP_COLS + WINDOW_COLUMNS
+        ]
+
+        vg_feature_cols = [
+            col for col in vg_df.columns
+            if col not in GROUP_COLS + WINDOW_COLUMNS
+        ]
+
+        combined_features = np.hstack([
+            raw_df[raw_feature_cols].to_numpy(),
+            vg_df[vg_feature_cols].to_numpy()
+            
+        ])
+
+        combined_feature_cols = raw_feature_cols + vg_feature_cols
+
+        combined_df = pd.concat(
+            [
+                raw_df[GROUP_COLS + WINDOW_COLUMNS].reset_index(drop=True),
+                pd.DataFrame(combined_features, columns=combined_feature_cols)
+            ],
+            axis=1
+        )
+
+        return combined_df
+
+    raise ValueError("input_type must be 'raw', 'vg', or 'raw_vg'")
+
+
+def aggregate_features(df, prefix):
+    df = df.copy()
+
+    drop_columns = GROUP_COLS + WINDOW_COLUMNS
+    drop_columns = [col for col in drop_columns if col in df.columns]
+
+    feature_cols = [
+        col for col in df.columns
+        if col not in drop_columns
+    ]
+
+    feature_cols = (
+        df[feature_cols]
+        .select_dtypes(include=[np.number])
+        .columns
+        .tolist()
+    )
+
+    print(f"\n{prefix}")
+    print("Number of features:", len(feature_cols))
+
+    agg_df = (
+        df.groupby(GROUP_COLS)[feature_cols]
+        .agg(["mean", "std", "min", "max"])
+    )
+
+    agg_df.columns = [
+        f"{prefix}{col}_{stat}"
+        for col, stat in agg_df.columns
+    ]
+
+    agg_df = agg_df.reset_index()
+
+    return agg_df
+
+
+def prepare_inputs(df, input_mode):
+    if LABEL_COL not in df.columns:
+        raise ValueError(f"Required label column not found: {LABEL_COL}")
+
+    if input_mode not in ["windowed", "aggregated"]:
+        raise ValueError("input_mode must be either 'windowed' or 'aggregated'")
+
+    if input_mode == "aggregated":
+        df = aggregate_features(df, prefix="agg_")
 
     threshold = df[LABEL_COL].median()
     df["label_binary"] = (df[LABEL_COL] >= threshold).astype(int)
 
-    df = pd.get_dummies(df, columns=[EMOTION_COL], prefix="emo")
+    if EMOTION_COL not in GROUP_COLS:
+        df = pd.get_dummies(df, columns=[EMOTION_COL], prefix="emo")
 
     drop_columns = [SUBJECT_COL, LABEL_COL, "label_binary"] + WINDOW_COLUMNS
     drop_columns = [col for col in drop_columns if col in df.columns]
 
     X = df.drop(columns=drop_columns)
+    X = X.select_dtypes(include=[np.number])
     X = X.astype(np.float32)
 
     y = df["label_binary"].astype(int)
     groups = df[SUBJECT_COL]
+
+    return X, y, groups
+
+def main(input_type="raw", input_mode="windowed"):
+    df = load_dataset(input_type)
+    X, y, groups = prepare_inputs(df, input_mode)
 
     logo = LeaveOneGroupOut()
 
@@ -131,10 +236,10 @@ def main():
 
     results_all = {}
     best_params_all = {}
-    subjects_results_all = {}
+    subjects_results_all = []
 
     for model_name, model_config in models.items():
-        print(f"\n🚀 Running {model_name} ...")
+        print(f"\n🚀 Running {model_name} | Mode: {input_mode} ...")
 
         total_combinations = len(list(ParameterGrid(model_config["param_grid"])))
         print(f"  Number of grid combinations: {total_combinations}")
@@ -184,6 +289,7 @@ def main():
             fold_results.append(metrics)
 
             subjects_metrics.append({
+                "model": model_name,
                 "subject_id": subject_id,
                 **metrics
             })
@@ -195,7 +301,7 @@ def main():
 
         results_all[model_name] = fold_results
         best_params_all[model_name] = fold_best_params
-        subjects_results_all[model_name] = pd.DataFrame(subjects_metrics)
+        subjects_results_all.append(pd.DataFrame(subjects_metrics))
 
     summary = []
 
@@ -218,14 +324,35 @@ def main():
     print("\n===== FINAL RESULTS LOSO + GroupKFold inner CV + GridSearchCV =====\n")
     print(summary_df)
 
-    summary_df.to_csv(OUTPUT_SUMMARY_PATH, index=False)
-    print(f"\n✅ Saved: {OUTPUT_SUMMARY_PATH}")
+    output_summary_path = OUTPUT_SUMMARY_PATH.format(
+        input_type=input_type,
+        mode=input_mode
+    )
 
-    for model_name, df_subjects in subjects_results_all.items():
-        filename = f"subjects_results_{model_name.replace(' ', '_')}_vg.csv"
-        df_subjects.to_csv(filename, index=False)
-        print(f"✅ Saved: {filename}")
+    output_subjects_path = OUTPUT_SUBJECTS_PATH.format(
+        input_type=input_type,
+        mode=input_mode
+    )
 
+    summary_df.to_csv(output_summary_path, index=False)
+    print(f"\n✅ Saved: {output_summary_path}")
+
+    subjects_results_df = pd.concat(subjects_results_all, ignore_index=True)
+    subjects_results_df.to_csv(output_subjects_path, index=False)
+    print(f"✅ Saved: {output_subjects_path}")
+
+def run_all_modes():
+    feature_modes = ["vg", "raw_vg"]
+    input_modes = ["windowed", "aggregated"]
+
+    for feature_mode in feature_modes:
+        for input_mode in input_modes:
+            print("\n" + "=" * 80)
+            print(f"Running FEATURE_MODE={feature_mode} | INPUT_MODE={input_mode}")
+            print("=" * 80)
+
+            main(input_type=feature_mode, input_mode=input_mode)
 
 if __name__ == "__main__":
-    main()
+    # main(input_type=FEATURE_MODE, input_mode=INPUT_MODE)
+    run_all_modes()

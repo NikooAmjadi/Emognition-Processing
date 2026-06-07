@@ -5,7 +5,7 @@ import networkx as nx
 import warnings
 
 FILE_PATH = "emognition_complete.h5"
-OUTPUT_PATH = "emognition_visibility_graph_dataset_windowed.csv"
+OUTPUT_PATH = "emognition_vg_features.csv"
 
 SUBJECTS = range(22, 65)
 

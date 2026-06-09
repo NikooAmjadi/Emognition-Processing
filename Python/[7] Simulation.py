@@ -282,7 +282,7 @@ def main(input_type="raw", input_mode="windowed"):
     print(y.value_counts(normalize=True).sort_index())
 
     logo = LeaveOneGroupOut()
-    models = get_models(True)
+    models = get_models()
 
     results_all = {}
     subjects_results_all = []

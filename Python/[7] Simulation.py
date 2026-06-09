@@ -7,6 +7,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -35,7 +36,7 @@ WINDOW_COLUMNS = [
     "overlap_sec"
 ]
 
-GROUP_COLS = [SUBJECT_COL, LABEL_COL]
+GROUP_COLS = [SUBJECT_COL, EMOTION_COL, LABEL_COL]
 
 OUTPUT_SUMMARY_PATH = "simulation_results_{input_type}_{mode}.csv"
 OUTPUT_SUBJECTS_PATH = "subjects_results_{input_type}_{mode}.csv"
@@ -74,6 +75,8 @@ def load_dataset(input_type):
             if col not in GROUP_COLS + WINDOW_COLUMNS
         ]
 
+        meta_cols = GROUP_COLS + WINDOW_COLUMNS
+
         raw_features = raw_df[raw_feature_cols].copy()
         vg_features = vg_df[vg_feature_cols].copy()
 
@@ -82,9 +85,9 @@ def load_dataset(input_type):
 
         combined_df = pd.concat(
             [
-                raw_df[GROUP_COLS + WINDOW_COLUMNS].reset_index(drop=True),
+                raw_df[meta_cols].reset_index(drop=True),
                 raw_features.reset_index(drop=True),
-                vg_features.reset_index(drop=True)
+                vg_features.reset_index(drop=True),
             ],
             axis=1
         )
@@ -112,17 +115,16 @@ def aggregate_features(df, prefix):
         .tolist()
     )
 
-    print(f"\n{prefix}")
-    print("Number of features:", len(feature_cols))
-
     agg_df = (
         df.groupby(GROUP_COLS)[feature_cols]
-        .mean()
+        .agg(["mean", "std", "min", "max"])
         .reset_index()
     )
 
     agg_df.columns = [
-        col if col in GROUP_COLS else f"{prefix}{col}_mean"
+        "_".join(filter(None, map(str, col))).rstrip("_")
+        if isinstance(col, tuple)
+        else col
         for col in agg_df.columns
     ]
 
@@ -141,8 +143,12 @@ def prepare_inputs(df, input_mode):
 
     drop_columns = [SUBJECT_COL, EMOTION_COL, LABEL_COL] + WINDOW_COLUMNS
     drop_columns = [col for col in drop_columns if col in df.columns]
-
+    
     X = df.drop(columns=drop_columns)
+
+    le = LabelEncoder()
+
+    X["emotion_dummy"] = le.fit_transform(df[EMOTION_COL])
     X = X.select_dtypes(include=[np.number])
     X = X.astype(np.float32)
 
@@ -152,7 +158,71 @@ def prepare_inputs(df, input_mode):
     return X, y, groups
 
 
-def get_models():
+def get_models(fast=False):
+
+    if fast:
+        svm_grid = {
+            "clf__kernel": ["rbf"],
+            "clf__C": [5],
+            "clf__gamma": ["scale"]
+        }
+
+        rf_grid = {
+            "clf__n_estimators": [100],
+            "clf__max_depth": [10],
+            "clf__min_samples_leaf": [1],
+            "clf__max_features": ["sqrt"]
+        }
+
+        knn_grid = {
+            "clf__n_neighbors": [5],
+            "clf__weights": ["distance"],
+            "clf__p": [2]
+        }
+
+        xgb_grid = {
+            "clf__n_estimators": [100],
+            "clf__learning_rate": [0.1],
+            "clf__max_depth": [3],
+            "clf__min_child_weight": [1],
+            "clf__subsample": [0.85],
+            "clf__colsample_bytree": [0.85],
+            "clf__reg_alpha": [0],
+            "clf__reg_lambda": [1],
+            "clf__scale_pos_weight": [1],
+        }
+    else:
+        svm_grid = {
+            "clf__kernel": ["rbf"],
+            "clf__C": [1, 5, 10],
+            "clf__gamma": ["scale"]
+        }
+
+        rf_grid = {
+            "clf__n_estimators": [100, 200],
+            "clf__max_depth": [5, 10],
+            "clf__min_samples_leaf": [1, 2],
+            "clf__max_features": ["sqrt"]
+        }
+
+        knn_grid = {
+            "clf__n_neighbors": [3, 5, 7],
+            "clf__weights": ["uniform", "distance"],
+            "clf__p": [1, 2]
+        }
+
+        xgb_grid = {
+            "clf__n_estimators": [100, 200],
+            "clf__learning_rate": [0.05, 0.1],
+            "clf__max_depth": [2, 3],
+            "clf__min_child_weight": [1, 3],
+            "clf__subsample": [0.85],
+            "clf__colsample_bytree": [0.85],
+            "clf__reg_alpha": [0, 0.01],
+            "clf__reg_lambda": [1, 2],
+            "clf__scale_pos_weight": [1, 2],
+        }
+
     return {
         "SVM": {
             "pipeline": Pipeline([
@@ -160,11 +230,7 @@ def get_models():
                 ("scaler", StandardScaler()),
                 ("clf", SVC(random_state=RANDOM_STATE))
             ]),
-            "param_grid": {
-                "clf__kernel": ["rbf"],
-                "clf__C": [1, 5, 10],
-                "clf__gamma": ["scale"]
-            }
+            "param_grid": svm_grid
         },
 
         "Random Forest": {
@@ -176,12 +242,7 @@ def get_models():
                     class_weight="balanced_subsample"
                 ))
             ]),
-            "param_grid": {
-                "clf__n_estimators": [100, 200],
-                "clf__max_depth": [5, 10],
-                "clf__min_samples_leaf": [1, 2],
-                "clf__max_features": ["sqrt"]
-            }
+            "param_grid": rf_grid
         },
 
         "KNN": {
@@ -190,11 +251,7 @@ def get_models():
                 ("scaler", StandardScaler()),
                 ("clf", KNeighborsClassifier())
             ]),
-            "param_grid": {
-                "clf__n_neighbors": [3, 5, 7],
-                "clf__weights": ["uniform", "distance"],
-                "clf__p": [1, 2]
-            }
+            "param_grid": knn_grid
         },
 
         "XGBoost": {
@@ -209,38 +266,23 @@ def get_models():
                     verbosity=0
                 ))
             ]),
-            "param_grid": {
-                "clf__n_estimators": [100, 200],
-                "clf__learning_rate": [0.05, 0.1],
-                "clf__max_depth": [2, 3],
-                "clf__min_child_weight": [1, 3],
-                "clf__subsample": [0.85],
-                "clf__colsample_bytree": [0.85],
-                "clf__reg_alpha": [0, 0.01],
-                "clf__reg_lambda": [1, 2],
-                "clf__scale_pos_weight": [1, 2],
-            }
+            "param_grid": xgb_grid
         }
     }
 
-
 def main(input_type="raw", input_mode="windowed"):
     df = load_dataset(input_type)
-
-    # SAM valence binary classification:
-    # 1–4 = low/negative valence
-    # 5 = neutral, removed
-    # 6–9 = high/positive valence
-    df = df[df[LABEL_COL] != 5].copy()
-
+   
     X, y, groups = prepare_inputs(df, input_mode)
+
+    print(f"Number of features: {len(X.columns)}")
 
     print("\nClass distribution after SAM binarization:")
     print(y.value_counts().sort_index())
     print(y.value_counts(normalize=True).sort_index())
 
     logo = LeaveOneGroupOut()
-    models = get_models()
+    models = get_models(True)
 
     results_all = {}
     subjects_results_all = []
@@ -357,8 +399,8 @@ def main(input_type="raw", input_mode="windowed"):
 
 
 def run_all_modes():
-    feature_modes = ["raw", "vg", "raw_vg"]
-    input_modes = ["windowed", "aggregated"]
+    feature_modes = ["vg"]
+    input_modes = ["aggregated"]
 
     for feature_mode in feature_modes:
         for input_mode in input_modes:

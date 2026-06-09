@@ -16,6 +16,7 @@ import xgboost as xgb
 import warnings
 warnings.filterwarnings("ignore")
 
+
 FEATURE_MODE = "raw"          # raw | vg | raw_vg
 INPUT_MODE = "windowed"       # windowed | aggregated
 
@@ -34,18 +35,18 @@ WINDOW_COLUMNS = [
     "overlap_sec"
 ]
 
-GROUP_COLS = [SUBJECT_COL, EMOTION_COL, LABEL_COL]
+GROUP_COLS = [SUBJECT_COL, LABEL_COL]
 
 OUTPUT_SUMMARY_PATH = "simulation_results_{input_type}_{mode}.csv"
 OUTPUT_SUBJECTS_PATH = "subjects_results_{input_type}_{mode}.csv"
 
 RANDOM_STATE = 42
 N_JOBS_SEARCH = 1
-
 N_JOBS_XGB = -1
 
 INNER_CV_SPLITS = 3
 SCORING = "f1"
+
 
 def load_dataset(input_type):
     if input_type == "raw":
@@ -58,10 +59,10 @@ def load_dataset(input_type):
         raw_df = pd.read_csv(RAW_DATASET_PATH)
         vg_df = pd.read_csv(VG_DATASET_PATH)
 
-        align_cols = [SUBJECT_COL, EMOTION_COL] + WINDOW_COLUMNS
+        align_cols = [SUBJECT_COL] + WINDOW_COLUMNS
 
         if not raw_df[align_cols].equals(vg_df[align_cols]):
-            raise ValueError("Raw and VG files are not aligned. Cannot use np.hstack safely.")
+            raise ValueError("Raw and VG files are not aligned.")
 
         raw_feature_cols = [
             col for col in raw_df.columns
@@ -73,18 +74,17 @@ def load_dataset(input_type):
             if col not in GROUP_COLS + WINDOW_COLUMNS
         ]
 
-        combined_features = np.hstack([
-            raw_df[raw_feature_cols].to_numpy(),
-            vg_df[vg_feature_cols].to_numpy()
-            
-        ])
+        raw_features = raw_df[raw_feature_cols].copy()
+        vg_features = vg_df[vg_feature_cols].copy()
 
-        combined_feature_cols = raw_feature_cols + vg_feature_cols
+        raw_features.columns = [f"raw_{c}" for c in raw_features.columns]
+        vg_features.columns = [f"vg_{c}" for c in vg_features.columns]
 
         combined_df = pd.concat(
             [
                 raw_df[GROUP_COLS + WINDOW_COLUMNS].reset_index(drop=True),
-                pd.DataFrame(combined_features, columns=combined_feature_cols)
+                raw_features.reset_index(drop=True),
+                vg_features.reset_index(drop=True)
             ],
             axis=1
         )
@@ -117,15 +117,14 @@ def aggregate_features(df, prefix):
 
     agg_df = (
         df.groupby(GROUP_COLS)[feature_cols]
-        .agg(["mean", "std", "min", "max"])
+        .mean()
+        .reset_index()
     )
 
     agg_df.columns = [
-        f"{prefix}{col}_{stat}"
-        for col, stat in agg_df.columns
+        col if col in GROUP_COLS else f"{prefix}{col}_mean"
+        for col in agg_df.columns
     ]
-
-    agg_df = agg_df.reset_index()
 
     return agg_df
 
@@ -140,31 +139,21 @@ def prepare_inputs(df, input_mode):
     if input_mode == "aggregated":
         df = aggregate_features(df, prefix="agg_")
 
-    threshold = df[LABEL_COL].median()
-    df["label_binary"] = (df[LABEL_COL] >= threshold).astype(int)
-
-    if EMOTION_COL not in GROUP_COLS:
-        df = pd.get_dummies(df, columns=[EMOTION_COL], prefix="emo")
-
-    drop_columns = [SUBJECT_COL, LABEL_COL, "label_binary"] + WINDOW_COLUMNS
+    drop_columns = [SUBJECT_COL, EMOTION_COL, LABEL_COL] + WINDOW_COLUMNS
     drop_columns = [col for col in drop_columns if col in df.columns]
 
     X = df.drop(columns=drop_columns)
     X = X.select_dtypes(include=[np.number])
     X = X.astype(np.float32)
 
-    y = df["label_binary"].astype(int)
+    y = (df[LABEL_COL].astype(float) > 5).astype(int)
     groups = df[SUBJECT_COL]
 
     return X, y, groups
 
-def main(input_type="raw", input_mode="windowed"):
-    df = load_dataset(input_type)
-    X, y, groups = prepare_inputs(df, input_mode)
 
-    logo = LeaveOneGroupOut()
-
-    models = {
+def get_models():
+    return {
         "SVM": {
             "pipeline": Pipeline([
                 ("imputer", SimpleImputer(strategy="mean")),
@@ -229,13 +218,31 @@ def main(input_type="raw", input_mode="windowed"):
                 "clf__colsample_bytree": [0.85],
                 "clf__reg_alpha": [0, 0.01],
                 "clf__reg_lambda": [1, 2],
-                "clf__scale_pos_weight": [1, 2]
+                "clf__scale_pos_weight": [1, 2],
             }
         }
     }
 
+
+def main(input_type="raw", input_mode="windowed"):
+    df = load_dataset(input_type)
+
+    # SAM valence binary classification:
+    # 1–4 = low/negative valence
+    # 5 = neutral, removed
+    # 6–9 = high/positive valence
+    df = df[df[LABEL_COL] != 5].copy()
+
+    X, y, groups = prepare_inputs(df, input_mode)
+
+    print("\nClass distribution after SAM binarization:")
+    print(y.value_counts().sort_index())
+    print(y.value_counts(normalize=True).sort_index())
+
+    logo = LeaveOneGroupOut()
+    models = get_models()
+
     results_all = {}
-    best_params_all = {}
     subjects_results_all = []
 
     for model_name, model_config in models.items():
@@ -245,7 +252,6 @@ def main(input_type="raw", input_mode="windowed"):
         print(f"  Number of grid combinations: {total_combinations}")
 
         fold_results = []
-        fold_best_params = []
         subjects_metrics = []
 
         for fold_idx, (train_idx, test_idx) in enumerate(logo.split(X, y, groups)):
@@ -255,11 +261,19 @@ def main(input_type="raw", input_mode="windowed"):
 
             X_train = X.iloc[train_idx]
             X_test = X.iloc[test_idx]
+
             y_train = y.iloc[train_idx]
             y_test = y.iloc[test_idx]
+
             groups_train = groups.iloc[train_idx].to_numpy()
 
-            inner_cv = GroupKFold(n_splits=INNER_CV_SPLITS)
+            n_unique_train_groups = len(np.unique(groups_train))
+            n_inner_splits = min(INNER_CV_SPLITS, n_unique_train_groups)
+
+            if n_inner_splits < 2:
+                raise ValueError("Not enough training groups for inner GroupKFold.")
+
+            inner_cv = GroupKFold(n_splits=n_inner_splits)
 
             search = GridSearchCV(
                 estimator=model_config["pipeline"],
@@ -275,8 +289,6 @@ def main(input_type="raw", input_mode="windowed"):
             search.fit(X_train, y_train, groups=groups_train)
 
             best_model = search.best_estimator_
-            fold_best_params.append(search.best_params_)
-
             y_pred = best_model.predict(X_test)
 
             metrics = {
@@ -291,6 +303,9 @@ def main(input_type="raw", input_mode="windowed"):
             subjects_metrics.append({
                 "model": model_name,
                 "subject_id": subject_id,
+                "threshold_used": 5,
+                "neutral_label_removed": True,
+                "best_params": search.best_params_,
                 **metrics
             })
 
@@ -300,7 +315,6 @@ def main(input_type="raw", input_mode="windowed"):
             )
 
         results_all[model_name] = fold_results
-        best_params_all[model_name] = fold_best_params
         subjects_results_all.append(pd.DataFrame(subjects_metrics))
 
     summary = []
@@ -341,6 +355,7 @@ def main(input_type="raw", input_mode="windowed"):
     subjects_results_df.to_csv(output_subjects_path, index=False)
     print(f"✅ Saved: {output_subjects_path}")
 
+
 def run_all_modes():
     feature_modes = ["raw", "vg", "raw_vg"]
     input_modes = ["windowed", "aggregated"]
@@ -353,6 +368,6 @@ def run_all_modes():
 
             main(input_type=feature_mode, input_mode=input_mode)
 
+
 if __name__ == "__main__":
-    # main(input_type=FEATURE_MODE, input_mode=INPUT_MODE)
     run_all_modes()

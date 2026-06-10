@@ -43,16 +43,18 @@ def load_values(f, path):
         return None
 
 
-def load_label(f, subject_id, emotion):
+def load_label(f, subject_id, emotion, dimension="VALENCE"):
     paths = [
-        f"/{subject_id}/questionnaires/{emotion}/sam/VALENCE",
-        f"/{subject_id}/questionnaires/{emotion}/SAM/VALENCE",
+        f"/{subject_id}/questionnaires/{emotion}/sam/{dimension}",
+        f"/{subject_id}/questionnaires/{emotion}/SAM/{dimension}",
     ]
+
     for p in paths:
         try:
             return float(f[p][()])
         except:
             continue
+
     return np.nan
 
 
@@ -176,7 +178,6 @@ def extract_vg_features(signal, min_len, prefix, max_points=None):
     degrees = np.array([d for _, d in graph.degree()], dtype=float)
 
     feats = {
-        f"{prefix}_vg_nodes": float(n_nodes),
         f"{prefix}_vg_edges": float(n_edges),
         f"{prefix}_vg_density": float(nx.density(graph)),
         f"{prefix}_vg_degree_mean": float(np.mean(degrees)),
@@ -269,7 +270,8 @@ with h5py.File(FILE_PATH, "r") as f:
                         "window_end_sec": end_sec,
                         "window_size_sec": WINDOW_SIZE_SEC,
                         "overlap_sec": OVERLAP_SEC,
-                        "label_valence": load_label(f, subject_id, emotion)
+                        "label_valence": load_label(f, subject_id, emotion, "VALENCE"),
+                        "label_arousal": load_label(f, subject_id, emotion, "AROUSAL")
                     }
 
                     temp_w = get_window(temp, TEMP_FS, start_sec, end_sec)

@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelEncoder
 
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -27,6 +26,7 @@ VG_DATASET_PATH = "emognition_vg_features.csv"
 SUBJECT_COL = "subject_id"
 EMOTION_COL = "emotion"
 LABEL_COL = "label_valence"
+AROUSAL_COL = "label_arousal"
 
 WINDOW_COLUMNS = [
     "window_id",
@@ -65,14 +65,16 @@ def load_dataset(input_type):
         if not raw_df[align_cols].equals(vg_df[align_cols]):
             raise ValueError("Raw and VG files are not aligned.")
 
+        exclude_cols = GROUP_COLS + WINDOW_COLUMNS + [LABEL_COL, AROUSAL_COL]
+
         raw_feature_cols = [
             col for col in raw_df.columns
-            if col not in GROUP_COLS + WINDOW_COLUMNS
+            if col not in exclude_cols
         ]
 
         vg_feature_cols = [
             col for col in vg_df.columns
-            if col not in GROUP_COLS + WINDOW_COLUMNS
+            if col not in exclude_cols
         ]
 
         meta_cols = GROUP_COLS + WINDOW_COLUMNS
@@ -100,7 +102,7 @@ def load_dataset(input_type):
 def aggregate_features(df, prefix):
     df = df.copy()
 
-    drop_columns = GROUP_COLS + WINDOW_COLUMNS
+    drop_columns = GROUP_COLS + WINDOW_COLUMNS + [AROUSAL_COL, LABEL_COL]
     drop_columns = [col for col in drop_columns if col in df.columns]
 
     feature_cols = [
@@ -122,10 +124,14 @@ def aggregate_features(df, prefix):
     )
 
     agg_df.columns = [
-        "_".join(filter(None, map(str, col))).rstrip("_")
-        if isinstance(col, tuple)
-        else col
-        for col in agg_df.columns
+        col if col in GROUP_COLS
+        else f"{prefix}_{col}"
+        for col in [
+            "_".join(filter(None, map(str, col))).rstrip("_")
+            if isinstance(col, tuple)
+            else col
+            for col in agg_df.columns
+        ]
     ]
 
     return agg_df
@@ -139,16 +145,13 @@ def prepare_inputs(df, input_mode):
         raise ValueError("input_mode must be either 'windowed' or 'aggregated'")
 
     if input_mode == "aggregated":
-        df = aggregate_features(df, prefix="agg_")
+        df = aggregate_features(df, prefix="agg")
 
-    drop_columns = [SUBJECT_COL, EMOTION_COL, LABEL_COL] + WINDOW_COLUMNS
+    drop_columns = [SUBJECT_COL, EMOTION_COL, AROUSAL_COL, LABEL_COL] + WINDOW_COLUMNS
     drop_columns = [col for col in drop_columns if col in df.columns]
     
     X = df.drop(columns=drop_columns)
 
-    le = LabelEncoder()
-
-    X["emotion_dummy"] = le.fit_transform(df[EMOTION_COL])
     X = X.select_dtypes(include=[np.number])
     X = X.astype(np.float32)
 
@@ -272,9 +275,16 @@ def get_models(fast=False):
 
 def main(input_type="raw", input_mode="windowed"):
     df = load_dataset(input_type)
-   
-    X, y, groups = prepare_inputs(df, input_mode)
 
+    # SAM valence binary classification:
+    # 1–4 = low/negative valence
+    # 5 = neutral and baseline, removed
+    # 6–9 = high/positive valence
+    df = df[~df[EMOTION_COL].isin(["BASELINE", "NEUTRAL"])].copy()
+
+
+    X, y, groups = prepare_inputs(df, input_mode)
+    
     print(f"Number of features: {len(X.columns)}")
 
     print("\nClass distribution after SAM binarization:")
@@ -399,7 +409,7 @@ def main(input_type="raw", input_mode="windowed"):
 
 
 def run_all_modes():
-    feature_modes = ["vg"]
+    feature_modes = ["raw", "vg", "raw_vg"]
     input_modes = ["aggregated"]
 
     for feature_mode in feature_modes:

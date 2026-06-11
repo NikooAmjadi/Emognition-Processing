@@ -16,13 +16,20 @@ import xgboost as xgb
 import warnings
 warnings.filterwarnings("ignore")
 
+# raw | vg | raw_vg
+FEATURE_MODE = ["raw", "vg", "raw_vg"]
 
-FEATURE_MODE = "raw"          # raw | vg | raw_vg
-INPUT_MODE = "windowed"       # windowed | aggregated
-TARGET_LABEL = "arousal"      # valence | arousal
+# windowed | aggregated
+INPUT_MODE = ["windowed"]
 
-RAW_DATASET_PATH = "emognition_raw_features.csv"
-VG_DATASET_PATH = "emognition_vg_features.csv"
+# valence | arousal
+TARGET_LABEL = "valence"
+
+# fast mode disables grid search
+FAST_MODE = False
+
+RAW_DATASET_PATH = "emognition_raw_features_60.csv"
+VG_DATASET_PATH = "emognition_vg_features_60.csv"
 
 SUBJECT_COL = "subject_id"
 EMOTION_COL = "emotion"
@@ -269,6 +276,7 @@ def get_models(fast=False):
                     objective="binary:logistic",
                     eval_metric="logloss",
                     tree_method="hist",
+                    device="cuda",
                     n_jobs=N_JOBS_XGB,
                     verbosity=0
                 ))
@@ -285,7 +293,8 @@ def main(input_type="raw", input_mode="windowed"):
     # 1–4 = low/negative valence
     # 5 = neutral and baseline, removed
     # 6–9 = high/positive valence
-    df = df[~df[EMOTION_COL].isin(["BASELINE", "NEUTRAL"])].copy()
+    df = df[df[LABEL_COL].astype(float) != 5].copy()
+    #df = df[~df[EMOTION_COL].isin(["BASELINE", "NEUTRAL"])].copy()
 
 
     X, y, groups = prepare_inputs(df, input_mode)
@@ -298,7 +307,7 @@ def main(input_type="raw", input_mode="windowed"):
 
 
     logo = LeaveOneGroupOut()
-    models = get_models()
+    models = get_models(FAST_MODE)
 
     results_all = {}
     subjects_results_all = []
@@ -417,11 +426,8 @@ def main(input_type="raw", input_mode="windowed"):
 
 
 def run_all_modes():
-    feature_modes = ["raw", "vg", "raw_vg"]
-    input_modes = ["windowed","aggregated"]
-
-    for feature_mode in feature_modes:
-        for input_mode in input_modes:
+    for feature_mode in FEATURE_MODE:
+        for input_mode in INPUT_MODE:
             print("\n" + "=" * 80)
             print(f"Running FEATURE_MODE={feature_mode} | INPUT_MODE={input_mode}")
             print("=" * 80)

@@ -5,7 +5,7 @@ import networkx as nx
 import warnings
 
 FILE_PATH = "emognition_complete.h5"
-OUTPUT_PATH = "emognition_vg_features.csv"
+OUTPUT_PATH = "emognition_vg_features_60.csv"
 
 SUBJECTS = range(22, 65)
 
@@ -14,8 +14,8 @@ EMOTIONS = [
     "AMUSEMENT", "SADNESS", "NEUTRAL", "AWE", "DISGUST", "SURPRISE"
 ]
 
-WINDOW_SIZE_SEC = 20
-OVERLAP_SEC = 10
+WINDOW_SIZE_SEC = 60
+OVERLAP_SEC = 30
 
 EDA_FS = 4
 TEMP_FS = 4

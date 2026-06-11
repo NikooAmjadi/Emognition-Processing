@@ -19,14 +19,17 @@ warnings.filterwarnings("ignore")
 
 FEATURE_MODE = "raw"          # raw | vg | raw_vg
 INPUT_MODE = "windowed"       # windowed | aggregated
+TARGET_LABEL = "arousal"      # valence | arousal
 
 RAW_DATASET_PATH = "emognition_raw_features.csv"
 VG_DATASET_PATH = "emognition_vg_features.csv"
 
 SUBJECT_COL = "subject_id"
 EMOTION_COL = "emotion"
-LABEL_COL = "label_valence"
+VALENCE_COL = "label_valence"
 AROUSAL_COL = "label_arousal"
+
+LABEL_COL = {"valence": VALENCE_COL,"arousal": AROUSAL_COL}[TARGET_LABEL]
 
 WINDOW_COLUMNS = [
     "window_id",
@@ -37,9 +40,10 @@ WINDOW_COLUMNS = [
 ]
 
 GROUP_COLS = [SUBJECT_COL, EMOTION_COL, LABEL_COL]
+ALL_LABEL_COLS = [VALENCE_COL, AROUSAL_COL]
 
-OUTPUT_SUMMARY_PATH = "simulation_results_{input_type}_{mode}.csv"
-OUTPUT_SUBJECTS_PATH = "subjects_results_{input_type}_{mode}.csv"
+OUTPUT_SUMMARY_PATH = "simulation_results_{target}_{input_type}_{mode}.csv"
+OUTPUT_SUBJECTS_PATH = "subjects_results_{target}_{input_type}_{mode}.csv"
 
 RANDOM_STATE = 42
 N_JOBS_SEARCH = 1
@@ -65,7 +69,7 @@ def load_dataset(input_type):
         if not raw_df[align_cols].equals(vg_df[align_cols]):
             raise ValueError("Raw and VG files are not aligned.")
 
-        exclude_cols = GROUP_COLS + WINDOW_COLUMNS + [LABEL_COL, AROUSAL_COL]
+        exclude_cols = GROUP_COLS + WINDOW_COLUMNS + ALL_LABEL_COLS
 
         raw_feature_cols = [
             col for col in raw_df.columns
@@ -102,7 +106,7 @@ def load_dataset(input_type):
 def aggregate_features(df, prefix):
     df = df.copy()
 
-    drop_columns = GROUP_COLS + WINDOW_COLUMNS + [AROUSAL_COL, LABEL_COL]
+    drop_columns = GROUP_COLS + WINDOW_COLUMNS + ALL_LABEL_COLS
     drop_columns = [col for col in drop_columns if col in df.columns]
 
     feature_cols = [
@@ -147,7 +151,7 @@ def prepare_inputs(df, input_mode):
     if input_mode == "aggregated":
         df = aggregate_features(df, prefix="agg")
 
-    drop_columns = [SUBJECT_COL, EMOTION_COL, AROUSAL_COL, LABEL_COL] + WINDOW_COLUMNS
+    drop_columns = [SUBJECT_COL, EMOTION_COL] + ALL_LABEL_COLS + WINDOW_COLUMNS
     drop_columns = [col for col in drop_columns if col in df.columns]
     
     X = df.drop(columns=drop_columns)
@@ -273,6 +277,7 @@ def get_models(fast=False):
         }
     }
 
+
 def main(input_type="raw", input_mode="windowed"):
     df = load_dataset(input_type)
 
@@ -290,6 +295,7 @@ def main(input_type="raw", input_mode="windowed"):
     print("\nClass distribution after SAM binarization:")
     print(y.value_counts().sort_index())
     print(y.value_counts(normalize=True).sort_index())
+
 
     logo = LeaveOneGroupOut()
     models = get_models()
@@ -391,11 +397,13 @@ def main(input_type="raw", input_mode="windowed"):
     print(summary_df)
 
     output_summary_path = OUTPUT_SUMMARY_PATH.format(
+        target=TARGET_LABEL,
         input_type=input_type,
         mode=input_mode
     )
 
     output_subjects_path = OUTPUT_SUBJECTS_PATH.format(
+        target=TARGET_LABEL,
         input_type=input_type,
         mode=input_mode
     )
@@ -410,7 +418,7 @@ def main(input_type="raw", input_mode="windowed"):
 
 def run_all_modes():
     feature_modes = ["raw", "vg", "raw_vg"]
-    input_modes = ["aggregated"]
+    input_modes = ["windowed","aggregated"]
 
     for feature_mode in feature_modes:
         for input_mode in input_modes:

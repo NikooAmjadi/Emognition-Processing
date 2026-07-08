@@ -12,21 +12,39 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 import xgboost as xgb
+from sklearn.svm import SVR
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
+
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score
+)
 
 import warnings
 warnings.filterwarnings("ignore")
 
-# raw | vg | raw_vg
-FEATURE_MODE = ["raw", "vg", "raw_vg"]
+# raw | vg | rawvg
+FEATURE_MODE = ["raw", "vg", "rawvg"]
 
 # windowed | aggregated
-INPUT_MODE = ["windowed"]
+INPUT_MODE = ["aggregated", "windowed"]
 
 # valence | arousal
-TARGET_LABEL = "valence"
+TARGET_LABEL = "arousal"
+
+# binary | ternary | regression
+CLASSIFICATION = "ternary"
 
 # fast mode disables grid search
 FAST_MODE = False
+
+# Apply Subject-wise Z-score normalization to self-assessment labels
+NORMALIZE_LABELS = True
+
+# Remove baseline and neutral trials
+REMOVE_BASELINE_NEUTRAL = True
 
 RAW_DATASET_PATH = "emognition_raw_features_60.csv"
 VG_DATASET_PATH = "emognition_vg_features_60.csv"
@@ -49,15 +67,20 @@ WINDOW_COLUMNS = [
 GROUP_COLS = [SUBJECT_COL, EMOTION_COL, LABEL_COL]
 ALL_LABEL_COLS = [VALENCE_COL, AROUSAL_COL]
 
-OUTPUT_SUMMARY_PATH = "simulation_results_{target}_{input_type}_{mode}.csv"
-OUTPUT_SUBJECTS_PATH = "subjects_results_{target}_{input_type}_{mode}.csv"
+OUTPUT_SUMMARY_PATH = (
+    "simulation_results_{target}_{input_type}_{mode}_{class_name}_{norm}_{filter}_{is_fast}.csv"
+)
+
+OUTPUT_SUBJECTS_PATH = (
+    "subjects_results_{target}_{input_type}_{mode}_{class_name}_{norm}_{filter}_{is_fast}.csv"
+)
 
 RANDOM_STATE = 42
 N_JOBS_SEARCH = 1
 N_JOBS_XGB = -1
 
 INNER_CV_SPLITS = 3
-SCORING = "f1"
+SCORING = "f1_macro"
 
 
 def load_dataset(input_type):
@@ -67,7 +90,7 @@ def load_dataset(input_type):
     if input_type == "vg":
         return pd.read_csv(VG_DATASET_PATH)
 
-    if input_type == "raw_vg":
+    if input_type == "rawvg":
         raw_df = pd.read_csv(RAW_DATASET_PATH)
         vg_df = pd.read_csv(VG_DATASET_PATH)
 
@@ -107,8 +130,63 @@ def load_dataset(input_type):
 
         return combined_df
 
-    raise ValueError("input_type must be 'raw', 'vg', or 'raw_vg'")
+    raise ValueError("input_type must be 'raw', 'vg', or 'rawvg'")
 
+def remove_baseline_neutral(df, emotion_col="emotion"):
+
+    df = df.copy()
+
+    original_count = len(df)
+
+    df = df[
+        ~df[emotion_col]
+        .astype(str)
+        .str.upper()
+        .isin(["BASELINE", "NEUTRAL"])
+    ]
+
+    removed_count = original_count - len(df)
+
+    print(
+        f"Removed {removed_count} baseline/neutral samples. "
+        f"Remaining samples: {len(df)}"
+    )
+
+    return df
+
+def normalize_labels_subjectwise(df):
+
+    df = df.copy()
+
+    available_label_cols = [
+        col for col in [VALENCE_COL, AROUSAL_COL]
+        if col in df.columns
+    ]
+
+    if not available_label_cols:
+        print(
+            "Warning: No label columns found. "
+            "Skipping subject-wise normalization."
+        )
+        return df
+
+    for col in available_label_cols:
+
+        df[col] = (
+            df.groupby(SUBJECT_COL)[col]
+            .transform(
+                lambda x: (
+                    (x - x.mean()) / x.std()
+                ) if x.std() > 0 else 0
+            )
+        )
+
+    print(
+        f"Subject-wise Z-score applied to: "
+        f"{available_label_cols}"
+    )
+
+    return df
 
 def aggregate_features(df, prefix):
     df = df.copy()
@@ -148,7 +226,10 @@ def aggregate_features(df, prefix):
     return agg_df
 
 
-def prepare_inputs(df, input_mode):
+def prepare_inputs(df, input_mode, classification):
+    if classification not in ["binary", "ternary", "regression"]:
+        raise ValueError("Classification not supported")
+
     if LABEL_COL not in df.columns:
         raise ValueError(f"Required label column not found: {LABEL_COL}")
 
@@ -166,7 +247,27 @@ def prepare_inputs(df, input_mode):
     X = X.select_dtypes(include=[np.number])
     X = X.astype(np.float32)
 
-    y = (df[LABEL_COL].astype(float) > 5).astype(int)
+    labels = df[LABEL_COL].astype(float)
+
+    if classification == "binary":
+        if NORMALIZE_LABELS:
+            y = (df[LABEL_COL].astype(float) > 0).astype(int)
+        else:
+            y = (df[LABEL_COL].astype(float) > 5).astype(int)
+    if classification == "ternary":
+        y = pd.Series(index=df.index, dtype=int)
+
+        if NORMALIZE_LABELS == True:            
+            y[labels < -1] = 0
+            y[(labels >= -1) & (labels <= 1)] = 1
+            y[labels > 1] = 2
+        else:
+            y[(labels >= 1) & (labels <= 3)] = 0
+            y[(labels >= 4) & (labels <= 6)] = 1
+            y[(labels >= 7) & (labels <= 9)] = 2
+    if classification == "regression":
+        y = labels
+
     groups = df[SUBJECT_COL]
 
     return X, y, groups
@@ -202,9 +303,9 @@ def get_models(fast=False):
             "clf__subsample": [0.85],
             "clf__colsample_bytree": [0.85],
             "clf__reg_alpha": [0],
-            "clf__reg_lambda": [1],
-            "clf__scale_pos_weight": [1],
+            "clf__reg_lambda": [1]
         }
+
     else:
         svm_grid = {
             "clf__kernel": ["rbf"],
@@ -233,16 +334,85 @@ def get_models(fast=False):
             "clf__subsample": [0.85],
             "clf__colsample_bytree": [0.85],
             "clf__reg_alpha": [0, 0.01],
-            "clf__reg_lambda": [1, 2],
-            "clf__scale_pos_weight": [1, 2],
+            "clf__reg_lambda": [1, 2]
         }
 
+    # -------------------------
+    # Model selection
+    # -------------------------
+
+    if CLASSIFICATION == "regression":
+
+        svm_model = SVR()
+
+        rf_model = RandomForestRegressor(
+            random_state=RANDOM_STATE,
+            n_jobs=-1
+        )
+
+        knn_model = KNeighborsRegressor()
+
+        xgb_model = xgb.XGBRegressor(
+            random_state=RANDOM_STATE,
+            objective="reg:squarederror",
+            eval_metric="rmse",
+            tree_method="hist",
+            device="cuda",
+            n_jobs=N_JOBS_XGB,
+            verbosity=0
+        )
+
+    else:
+
+        svm_model = SVC(
+            random_state=RANDOM_STATE
+        )
+
+        rf_model = RandomForestClassifier(
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+            class_weight="balanced_subsample"
+        )
+
+        knn_model = KNeighborsClassifier()
+
+        if CLASSIFICATION == "binary":
+
+            xgb_model = xgb.XGBClassifier(
+                random_state=RANDOM_STATE,
+                objective="binary:logistic",
+                eval_metric="logloss",
+                tree_method="hist",
+                device="cuda",
+                n_jobs=N_JOBS_XGB,
+                verbosity=0
+            )
+
+        elif CLASSIFICATION == "ternary":
+
+            xgb_model = xgb.XGBClassifier(
+                random_state=RANDOM_STATE,
+                objective="multi:softprob",
+                num_class=3,
+                eval_metric="mlogloss",
+                tree_method="hist",
+                device="cuda",
+                n_jobs=N_JOBS_XGB,
+                verbosity=0
+            )
+
+        else:
+            raise ValueError(
+                "CLASSIFICATION must be binary, ternary or regression"
+            )
+
     return {
+
         "SVM": {
             "pipeline": Pipeline([
                 ("imputer", SimpleImputer(strategy="mean")),
                 ("scaler", StandardScaler()),
-                ("clf", SVC(random_state=RANDOM_STATE))
+                ("clf", svm_model)
             ]),
             "param_grid": svm_grid
         },
@@ -250,11 +420,7 @@ def get_models(fast=False):
         "Random Forest": {
             "pipeline": Pipeline([
                 ("imputer", SimpleImputer(strategy="mean")),
-                ("clf", RandomForestClassifier(
-                    random_state=RANDOM_STATE,
-                    n_jobs=-1,
-                    class_weight="balanced_subsample"
-                ))
+                ("clf", rf_model)
             ]),
             "param_grid": rf_grid
         },
@@ -263,7 +429,7 @@ def get_models(fast=False):
             "pipeline": Pipeline([
                 ("imputer", SimpleImputer(strategy="mean")),
                 ("scaler", StandardScaler()),
-                ("clf", KNeighborsClassifier())
+                ("clf", knn_model)
             ]),
             "param_grid": knn_grid
         },
@@ -271,40 +437,32 @@ def get_models(fast=False):
         "XGBoost": {
             "pipeline": Pipeline([
                 ("imputer", SimpleImputer(strategy="mean")),
-                ("clf", xgb.XGBClassifier(
-                    random_state=RANDOM_STATE,
-                    objective="binary:logistic",
-                    eval_metric="logloss",
-                    tree_method="hist",
-                    device="cuda",
-                    n_jobs=N_JOBS_XGB,
-                    verbosity=0
-                ))
+                ("clf", xgb_model)
             ]),
             "param_grid": xgb_grid
         }
     }
 
-
-def main(input_type="raw", input_mode="windowed"):
+def main(input_type="raw", input_mode="windowed", classification="binary"):
     df = load_dataset(input_type)
 
-    # SAM valence binary classification:
-    # 1–4 = low/negative valence
-    # 5 = neutral and baseline, removed
-    # 6–9 = high/positive valence
-    df = df[df[LABEL_COL].astype(float) != 5].copy()
-    #df = df[~df[EMOTION_COL].isin(["BASELINE", "NEUTRAL"])].copy()
+    if REMOVE_BASELINE_NEUTRAL:
+        df = remove_baseline_neutral(df, emotion_col=EMOTION_COL)
 
+    if NORMALIZE_LABELS:
+        df = normalize_labels_subjectwise(df)
 
-    X, y, groups = prepare_inputs(df, input_mode)
+    X, y, groups = prepare_inputs(df, input_mode, classification)
     
     print(f"Number of features: {len(X.columns)}")
-
-    print("\nClass distribution after SAM binarization:")
+    print(f"\nTarget distribution ({classification}):")
     print(y.value_counts().sort_index())
     print(y.value_counts(normalize=True).sort_index())
 
+    scoring_metric = SCORING
+    
+    if CLASSIFICATION == "regression":
+        scoring_metric = "neg_mean_absolute_error"
 
     logo = LeaveOneGroupOut()
     models = get_models(FAST_MODE)
@@ -345,7 +503,7 @@ def main(input_type="raw", input_mode="windowed"):
             search = GridSearchCV(
                 estimator=model_config["pipeline"],
                 param_grid=model_config["param_grid"],
-                scoring=SCORING,
+                scoring=scoring_metric,
                 cv=inner_cv,
                 n_jobs=N_JOBS_SEARCH,
                 verbose=1,
@@ -358,12 +516,35 @@ def main(input_type="raw", input_mode="windowed"):
             best_model = search.best_estimator_
             y_pred = best_model.predict(X_test)
 
-            metrics = {
-                "acc": accuracy_score(y_test, y_pred),
-                "f1": f1_score(y_test, y_pred, zero_division=0),
-                "precision": precision_score(y_test, y_pred, zero_division=0),
-                "recall": recall_score(y_test, y_pred, zero_division=0)
-            }
+
+            if classification == "regression":
+                metrics = {
+                    "mae": mean_absolute_error(y_test, y_pred),
+                    "rmse": np.sqrt(mean_squared_error(y_test, y_pred)),
+                    "r2": r2_score(y_test, y_pred)
+                }
+            else:
+                metrics = {
+                    "acc": accuracy_score(y_test, y_pred),
+                    "f1": f1_score(
+                        y_test,
+                        y_pred,
+                        average="macro",
+                        zero_division=0
+                    ),
+                    "precision": precision_score(
+                        y_test,
+                        y_pred,
+                        average="macro",
+                        zero_division=0
+                    ),
+                    "recall": recall_score(
+                        y_test,
+                        y_pred,
+                        average="macro",
+                        zero_division=0
+                    )
+                }
 
             fold_results.append(metrics)
 
@@ -376,10 +557,20 @@ def main(input_type="raw", input_mode="windowed"):
                 **metrics
             })
 
-            print(
-                f"  Completed fold {fold_idx + 1} | Subject {subject_id} | "
-                f"F1={metrics['f1']:.4f} | Acc={metrics['acc']:.4f}"
-            )
+
+            if classification == "regression":
+                print(
+                    f"Completed fold {fold_idx + 1} | Subject {subject_id} | "
+                    f"MAE={metrics['mae']:.4f} | "
+                    f"RMSE={metrics['rmse']:.4f} | "
+                    f"R2={metrics['r2']:.4f}"
+                )
+            else:
+                print(
+                    f"Completed fold {fold_idx + 1} | Subject {subject_id} | "
+                    f"F1={metrics['f1']:.4f} | "
+                    f"Acc={metrics['acc']:.4f}"
+                )
 
         results_all[model_name] = fold_results
         subjects_results_all.append(pd.DataFrame(subjects_metrics))
@@ -387,34 +578,58 @@ def main(input_type="raw", input_mode="windowed"):
     summary = []
 
     for model_name, res in results_all.items():
-        summary.append({
-            "Model": model_name,
-            "Acc_mean": np.mean([r["acc"] for r in res]),
-            "Acc_std": np.std([r["acc"] for r in res]),
-            "F1_mean": np.mean([r["f1"] for r in res]),
-            "F1_std": np.std([r["f1"] for r in res]),
-            "Prec_mean": np.mean([r["precision"] for r in res]),
-            "Prec_std": np.std([r["precision"] for r in res]),
-            "Rec_mean": np.mean([r["recall"] for r in res]),
-            "Rec_std": np.std([r["recall"] for r in res]),
-        })
+        if classification == "regression":
+            summary.append({
+                "Model": model_name,
+                "MAE_mean": np.mean([r["mae"] for r in res]),
+                "MAE_std": np.std([r["mae"] for r in res]),
+                "RMSE_mean": np.mean([r["rmse"] for r in res]),
+                "RMSE_std": np.std([r["rmse"] for r in res]),
+                "R2_mean": np.mean([r["r2"] for r in res]),
+                "R2_std": np.std([r["r2"] for r in res]),
+            })
+        else:
+            summary.append({
+                "Model": model_name,
+                "Acc_mean": np.mean([r["acc"] for r in res]),
+                "Acc_std": np.std([r["acc"] for r in res]),
+                "F1_mean": np.mean([r["f1"] for r in res]),
+                "F1_std": np.std([r["f1"] for r in res]),
+                "Prec_mean": np.mean([r["precision"] for r in res]),
+                "Prec_std": np.std([r["precision"] for r in res]),
+                "Rec_mean": np.mean([r["recall"] for r in res]),
+                "Rec_std": np.std([r["recall"] for r in res]),
+            })
 
     summary_df = pd.DataFrame(summary)
-    summary_df = summary_df.sort_values(by="F1_mean", ascending=False)
+    if classification != "regression":
+        summary_df = summary_df.sort_values(by="F1_mean", ascending=False)
 
     print("\n===== FINAL RESULTS LOSO + GroupKFold inner CV + GridSearchCV =====\n")
     print(summary_df)
 
+    norm_suffix = "normalized" if NORMALIZE_LABELS else "notNormalized"
+    filter_suffix = "noBaselineNeutral" if REMOVE_BASELINE_NEUTRAL else "noFilter"
+    fast_suffix = "fast" if FAST_MODE else "gridsearch"
+
     output_summary_path = OUTPUT_SUMMARY_PATH.format(
         target=TARGET_LABEL,
         input_type=input_type,
-        mode=input_mode
+        mode=input_mode,
+        class_name=classification,
+        norm=norm_suffix,
+        filter=filter_suffix,
+        is_fast=fast_suffix
     )
 
     output_subjects_path = OUTPUT_SUBJECTS_PATH.format(
         target=TARGET_LABEL,
         input_type=input_type,
-        mode=input_mode
+        mode=input_mode,
+        class_name=classification,
+        norm=norm_suffix,
+        filter=filter_suffix,
+        is_fast=fast_suffix
     )
 
     summary_df.to_csv(output_summary_path, index=False)
@@ -432,7 +647,7 @@ def run_all_modes():
             print(f"Running FEATURE_MODE={feature_mode} | INPUT_MODE={input_mode}")
             print("=" * 80)
 
-            main(input_type=feature_mode, input_mode=input_mode)
+            main(input_type=feature_mode, input_mode=input_mode, classification=CLASSIFICATION)
 
 
 if __name__ == "__main__":

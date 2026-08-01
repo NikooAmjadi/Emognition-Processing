@@ -1,0 +1,130 @@
+model,subject_id,threshold_used,neutral_label_removed,best_params,acc,f1,precision,recall
+GAT,22,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5273021952647151, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.5,0.3333333333333333,0.25,0.5
+GAT,23,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.533414591047073, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.7857142857142857,0.625
+GAT,24,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.46269453726909865, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,25,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5547591026928685, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.21428571428571427,0.375
+GAT,26,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5349989667661772, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.75,0.6666666666666667,0.6666666666666667,0.6666666666666667
+GAT,27,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5491411720620453, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.5,0.3333333333333333,0.2857142857142857,0.4
+GAT,28,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5510784292679203, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.7857142857142857,0.625
+GAT,29,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5237258159919872, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.75,0.7333333333333334,0.7333333333333334,0.7333333333333334
+GAT,30,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.4852669135391497, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.125,0.1111111111111111,0.25,0.07142857142857142
+GAT,31,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.4737629806650559, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GAT,32,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.490678523223421, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.75,0.75,0.75,0.75
+GAT,33,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5303797950835968, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GAT,34,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5122132593587958, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.75,0.7333333333333334,0.8333333333333333,0.75
+GAT,35,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5371884824783376, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.3666666666666667,0.375
+GAT,36,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5269401580120873, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.25,0.2,0.16666666666666666,0.25
+GAT,37,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5143171551970672, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.5714285714285714,0.36363636363636365,0.2857142857142857,0.5
+GAT,38,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5232862575551788, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.875,0.873015873015873,0.9,0.875
+GAT,39,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.49114784091848307, ""learning_rate"": 0.001, ""selected_epochs"": 6, ""weight_decay"": 0.0}",0.25,0.2,0.14285714285714285,0.3333333333333333
+GAT,40,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5428848196344579, ""learning_rate"": 0.001, ""selected_epochs"": 6, ""weight_decay"": 0.0}",0.25,0.2,0.3333333333333333,0.14285714285714285
+GAT,41,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5161505365401352, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.5833333333333333,0.5666666666666667
+GAT,42,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5605326924251538, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.5833333333333333,0.5666666666666667
+GAT,43,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5261554943373126, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,44,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.49809630845885816, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.5833333333333333,0.5666666666666667
+GAT,45,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5572207902664802, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,46,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.4944843710106206, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,47,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5148269097663644, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.41666666666666663,0.43333333333333335
+GAT,48,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5347478029234274, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.0,0.0,0.0,0.0
+GAT,49,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5373132860686171, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,50,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5107405783954742, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.25,0.25,0.25,0.25
+GAT,51,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5114263453070701, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.75,0.7333333333333334,0.8333333333333333,0.75
+GAT,52,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.500950454933711, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.3666666666666667,0.375
+GAT,53,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5421427082648292, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.25,0.3
+GAT,54,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5338814636457951, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.75,0.6666666666666667,0.6666666666666667,0.6666666666666667
+GAT,55,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5318982922670682, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.625,0.6333333333333333
+GAT,56,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.47911047860937545, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GAT,57,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5343542027673663, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.21428571428571427,0.375
+GAT,58,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5096827555696666, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.3333333333333333,0.25,0.25,0.25
+GAT,59,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5190058373798258, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.5,0.5,0.5333333333333333,0.5333333333333333
+GAT,60,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.49718765655169267, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GAT,61,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5357584854440822, ""learning_rate"": 0.001, ""selected_epochs"": 6, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.4666666666666667,0.4666666666666667
+GAT,62,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.49264819915438, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.5714285714285714,0.5333333333333333,0.55,0.5416666666666666
+GAT,63,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5218335236967914, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.41666666666666663,0.43333333333333335
+GAT,64,5.0,True,"{""dropout"": 0.2, ""heads"": 2, ""hidden_channels"": 32, ""inner_score"": 0.5618527843445538, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+MLP,22,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.75,0.7333333333333334,0.8333333333333333,0.75
+MLP,23,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.5,0.5
+MLP,24,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.6190476190476191,0.6333333333333333,0.625
+MLP,25,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.3666666666666667,0.375
+MLP,26,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.5636363636363637,0.5666666666666667,0.5833333333333333
+MLP,27,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.875,0.8545454545454545,0.9166666666666667,0.8333333333333333
+MLP,28,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.2727272727272727,0.21428571428571427,0.375
+MLP,29,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.4666666666666667,0.4666666666666667
+MLP,30,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.5833333333333334,0.6428571428571428
+MLP,31,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.75,0.7333333333333334,0.8333333333333333,0.75
+MLP,32,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.75,0.75,0.75,0.75
+MLP,33,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.6190476190476191,0.6333333333333333,0.625
+MLP,34,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.5,0.5,0.5
+MLP,35,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.5,0.5,0.5
+MLP,36,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.2727272727272727,0.21428571428571427,0.375
+MLP,37,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.8571428571428571,0.8444444444444444,0.9,0.8333333333333333
+MLP,38,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.75,0.75,0.75,0.75
+MLP,39,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.125,0.1111111111111111,0.125,0.1
+MLP,40,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.5833333333333334,0.6428571428571428
+MLP,41,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.4666666666666667,0.4666666666666667
+MLP,42,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.375,0.3666666666666667
+MLP,43,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.25,0.2,0.125,0.5
+MLP,44,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.6190476190476191,0.625,0.6333333333333333
+MLP,45,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.5,0.5,0.5
+MLP,46,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.5636363636363637,0.7857142857142857,0.625
+MLP,47,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.375,0.3666666666666667
+MLP,48,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",1.0,1.0,1.0,1.0
+MLP,49,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.5,0.5
+MLP,50,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.5,0.5,0.5
+MLP,51,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.6190476190476191,0.6333333333333333,0.625
+MLP,52,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.3666666666666667,0.375
+MLP,53,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.5636363636363637,0.5833333333333333,0.5666666666666667
+MLP,54,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.5,0.5
+MLP,55,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.75,0.75,0.8,0.8
+MLP,56,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.5,0.5
+MLP,57,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.625,0.6190476190476191,0.6333333333333333,0.625
+MLP,58,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.6666666666666666,0.4,0.3333333333333333,0.5
+MLP,59,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.375,0.3666666666666667
+MLP,60,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.3666666666666667,0.375
+MLP,61,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.36507936507936506,0.375,0.3666666666666667
+MLP,62,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.8571428571428571,0.8571428571428571,0.875,0.875
+MLP,63,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.375,0.2727272727272727,0.25,0.3
+MLP,64,5.0,True,"{""clf__alpha"": 0.0001, ""clf__hidden_layer_sizes"": [128], ""clf__learning_rate_init"": 0.001}",0.5,0.4666666666666667,0.5,0.5
+GCN,22,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.43773029769401245, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GCN,23,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4623651759554397, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GCN,24,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5409724694204079, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GCN,25,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.42061589293805685, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.5,0.3333333333333333,0.25,0.5
+GCN,26,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4785420499244702, ""learning_rate"": 0.001, ""selected_epochs"": 10, ""weight_decay"": 0.0}",0.875,0.8545454545454545,0.8333333333333333,0.9166666666666667
+GCN,27,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5148590670052915, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.625,0.38461538461538464,0.3125,0.5
+GCN,28,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5149621733126292, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GCN,29,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.493496545715137, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.5833333333333333,0.5666666666666667
+GCN,30,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4851435601435601, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.5833333333333334,0.6428571428571428
+GCN,31,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5161745357694358, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GCN,32,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5407725149450985, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GCN,33,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.46340679347134167, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.75,0.75,0.75,0.75
+GCN,34,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5324496286622655, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.7857142857142857,0.625
+GCN,35,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5196469394823745, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.25,0.25,0.25,0.25
+GCN,36,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.46373994510084743, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GCN,37,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5614257472985672, ""learning_rate"": 0.001, ""selected_epochs"": 18, ""weight_decay"": 0.0}",0.8571428571428571,0.8444444444444444,0.9,0.8333333333333333
+GCN,38,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4895308891521668, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.875,0.873015873015873,0.9,0.875
+GCN,39,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4605682146775179, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.1875,0.5
+GCN,40,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5572873623264116, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.75,0.42857142857142855,0.42857142857142855,0.42857142857142855
+GCN,41,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4611361186547933, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.25,0.2,0.2,0.2
+GCN,42,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5130431813569372, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.625,0.6333333333333333
+GCN,43,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4274528521255114, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.6428571428571428,0.5833333333333334
+GCN,44,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5159930566225915, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.25,0.25,0.26666666666666666,0.26666666666666666
+GCN,45,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.47811155946989264, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GCN,46,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5033040639423618, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.5,0.5
+GCN,47,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5077920117322291, ""learning_rate"": 0.001, ""selected_epochs"": 14, ""weight_decay"": 0.0}",0.25,0.2,0.2,0.2
+GCN,48,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.44729545872595927, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",1.0,1.0,1.0,1.0
+GCN,49,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.46257095103971196, ""learning_rate"": 0.001, ""selected_epochs"": 2, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625
+GCN,50,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5096021713372627, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.21428571428571427,0.375
+GCN,51,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5046366188580619, ""learning_rate"": 0.001, ""selected_epochs"": 8, ""weight_decay"": 0.0}",0.5,0.5,0.5,0.5
+GCN,52,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5404556856023345, ""learning_rate"": 0.001, ""selected_epochs"": 6, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.3666666666666667,0.375
+GCN,53,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.47103698097789054, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.375,0.2727272727272727,0.25,0.3
+GCN,54,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4639212691502816, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.625,0.5636363636363637,0.5666666666666667,0.5833333333333333
+GCN,55,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.47041772541267596, ""learning_rate"": 0.001, ""selected_epochs"": 7, ""weight_decay"": 0.0}",0.5,0.4666666666666667,0.7142857142857143,0.6
+GCN,56,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.4580261422728105, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.7,0.75
+GCN,57,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5018273402196799, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.25,0.25,0.25,0.25
+GCN,58,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.513123126075744, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.3333333333333333,0.25,0.25,0.25
+GCN,59,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5311288766716961, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.5,0.3333333333333333,0.2857142857142857,0.4
+GCN,60,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.509403503579375, ""learning_rate"": 0.001, ""selected_epochs"": 5, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.3666666666666667,0.375
+GCN,61,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.49446553444868613, ""learning_rate"": 0.001, ""selected_epochs"": 4, ""weight_decay"": 0.0}",0.5,0.5,0.5333333333333333,0.5333333333333333
+GCN,62,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5146708846708846, ""learning_rate"": 0.001, ""selected_epochs"": 10, ""weight_decay"": 0.0}",0.42857142857142855,0.41666666666666663,0.45,0.4583333333333333
+GCN,63,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5447045600806486, ""learning_rate"": 0.001, ""selected_epochs"": 3, ""weight_decay"": 0.0}",0.375,0.36507936507936506,0.375,0.3666666666666667
+GCN,64,5.0,True,"{""dropout"": 0.2, ""hidden_channels"": 32, ""inner_score"": 0.5190243855826931, ""learning_rate"": 0.001, ""selected_epochs"": 1, ""weight_decay"": 0.0}",0.625,0.6190476190476191,0.6333333333333333,0.625

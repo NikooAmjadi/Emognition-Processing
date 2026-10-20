@@ -1,0 +1,521 @@
+{
+  "analysis_contract": {
+    "aggregation": "per-trial population mean and population standard deviation",
+    "binary_labels": "target-specific SAM 5 excluded; 1--4=low(0), 6--9=high(1)",
+    "conditions": "BASELINE and NEUTRAL excluded",
+    "confidence_intervals": "subject-cluster percentile bootstrap",
+    "correlations": "descriptive Spearman correlations only; never used for selection",
+    "fold_preprocessing": "training-fold median imputation with empty features retained; training-fold VarianceThreshold(0); StandardScaler only for SVM/KNN",
+    "imbalance": "balanced class weights for SVM/RF; each fitted XGBoost training partition sets scale_pos_weight from its own negative/positive ratio; no synthetic oversampling",
+    "importance": "permutation importance on each untouched outer test subject",
+    "inner_selection": "StratifiedGroupKFold when valid, else GroupKFold; subject groups",
+    "outer_evaluation": "LeaveOneGroupOut by subject",
+    "phase": "STIMULUS only (enforced by upstream feature extractor)",
+    "primary_metric": "pooled out-of-fold binary balanced accuracy; fold-level BA is undefined when the held-out subject contains only one target class",
+    "shap": "SHAP on each untouched outer test subject using only an outer-training background; subject-balanced magnitude, direction, family contribution, rank, and top-k stability summaries",
+    "statistical_tests": "paired subject-cluster permutation of pooled OOF accuracy and balanced accuracy with Holm correction",
+    "subject_completeness": "one cohort across all settings; exclude subjects with fewer than 6 valid non-BASELINE/non-NEUTRAL trials in any input; criterion is independent of labels and model results"
+  },
+  "command_argv": [
+    "G:\\NIKOO BHI\\New Source\\run_models.py",
+    "--input",
+    "features\\emognition_features_w60_o30.csv",
+    "--output-dir",
+    "model_results",
+    "--run-name",
+    "paper_main_w60_o30_01",
+    "--targets",
+    "valence",
+    "arousal",
+    "--input-modes",
+    "windowed",
+    "aggregated",
+    "--representations",
+    "hc",
+    "nvg",
+    "hvg",
+    "hc+nvg",
+    "hc+hvg",
+    "--models",
+    "svm",
+    "rf",
+    "knn",
+    "xgboost",
+    "--trial-policy",
+    "common",
+    "--min-valid-trials-per-subject",
+    "6",
+    "--inner-splits",
+    "3",
+    "--n-jobs",
+    "1",
+    "--bootstrap-repeats",
+    "1000",
+    "--permutation-repeats",
+    "10",
+    "--importance-models",
+    "xgboost",
+    "--shap-models",
+    "xgboost",
+    "--shap-background-size",
+    "100",
+    "--shap-max-test-samples",
+    "0",
+    "--shap-top-k",
+    "10"
+  ],
+  "complete_loso_for_all_experiments": true,
+  "configuration_hash": "8e9ca7a90c",
+  "dependencies": {
+    "numpy": "2.3.4",
+    "pandas": "2.3.3",
+    "python": "3.11.0",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.17.1",
+    "shap": "0.51.0",
+    "xgboost": "3.2.0"
+  },
+  "experiment_count": 80,
+  "feature_schema": {
+    "expected_counts": {
+      "hc": 29,
+      "hvg": 48,
+      "nvg": 48
+    },
+    "representations": {
+      "hc": [
+        "hc"
+      ],
+      "hc+hvg": [
+        "hc",
+        "hvg"
+      ],
+      "hc+nvg": [
+        "hc",
+        "nvg"
+      ],
+      "hvg": [
+        "hvg"
+      ],
+      "nvg": [
+        "nvg"
+      ]
+    }
+  },
+  "finished_utc": "2026-08-25T23:59:46.151270+00:00",
+  "generator": {
+    "name": "run_models.py",
+    "version": "1.3.0"
+  },
+  "inputs": [
+    {
+      "input_id": "emognition_features_w60_o30",
+      "manifest_path_hint": "emognition_features_w60_o30.manifest.json",
+      "manifest_sha256": "bae37c725e0f79778450bdf9a439232fa54b34601da84ba69cf4b716a86651b9",
+      "overlap_sec": 30.0,
+      "path_hint": "emognition_features_w60_o30.csv",
+      "rows_after_policy": 746,
+      "sha256": "696bc752766107182d96bef9323345bb58a97a574a6e83ddffbc9718583a321f",
+      "subjects_after_policy": 42,
+      "trials_after_policy": 332,
+      "window_sec": 60.0
+    }
+  ],
+  "parameters": {
+    "bootstrap_repeats": 1000,
+    "correlations_enabled": true,
+    "device": "cpu",
+    "importance_models": [
+      "xgboost"
+    ],
+    "include_neutral_condition": false,
+    "inner_splits": 3,
+    "input_modes": [
+      "windowed",
+      "aggregated"
+    ],
+    "max_outer_folds": 0,
+    "min_valid_trials_per_subject": 6,
+    "models": [
+      "svm",
+      "rf",
+      "knn",
+      "xgboost"
+    ],
+    "n_jobs": 1,
+    "permutation_repeats": 10,
+    "quick": false,
+    "representations": [
+      "hc",
+      "nvg",
+      "hvg",
+      "hc+nvg",
+      "hc+hvg"
+    ],
+    "save_shap_values": false,
+    "seed": 42,
+    "shap_background_size": 100,
+    "shap_enabled": true,
+    "shap_max_test_samples": 0,
+    "shap_models": [
+      "xgboost"
+    ],
+    "shap_top_k": 10,
+    "targets": [
+      "valence",
+      "arousal"
+    ],
+    "trial_policy": "common"
+  },
+  "reportable_final_run": true,
+  "script_sha256": "14996a8890d06bd7ff1fa9cb7e27d70d061b11f7bd9dab6ed188e731cedde29c",
+  "started_utc": "2026-08-25T16:37:58.959347+00:00",
+  "status": "complete",
+  "subject_eligibility": [
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "22",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "23",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "24",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "25",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "26",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "27",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "28",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "29",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "30",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "31",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "32",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "33",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "34",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "35",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "36",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 7,
+      "subject_id": "37",
+      "valid_trials__emognition_features_w60_o30": 7
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "38",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "39",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "40",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "41",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "42",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "43",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "44",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "45",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "46",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "47",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": false,
+      "exclusion_reason": "fewer_than_6_valid_nonbaseline_nonneutral_trials",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 1,
+      "subject_id": "48",
+      "valid_trials__emognition_features_w60_o30": 1
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "49",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "50",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "51",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "52",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "53",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "54",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "55",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "56",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "57",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 6,
+      "subject_id": "58",
+      "valid_trials__emognition_features_w60_o30": 6
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "59",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "60",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "61",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 7,
+      "subject_id": "62",
+      "valid_trials__emognition_features_w60_o30": 7
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "63",
+      "valid_trials__emognition_features_w60_o30": 8
+    },
+    {
+      "eligible": true,
+      "exclusion_reason": "",
+      "minimum_required_valid_trials": 6,
+      "minimum_valid_trials_across_inputs": 8,
+      "subject_id": "64",
+      "valid_trials__emognition_features_w60_o30": 8
+    }
+  ],
+  "total_run_seconds": 26507.1923433
+}

@@ -1,2 +1,0 @@
-input_id,window_sec,overlap_sec,trial_policy,windows_before_policy,trials_before_policy,windows_after_policy,trials_after_policy,common_trials_across_inputs
-emognition_features_w60_o30,60,30,common,746,332,746,332,332

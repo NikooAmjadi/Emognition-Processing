@@ -1,0 +1,345 @@
+{
+  "analysis_contract": {
+    "aggregation": "Per-trial population mean and population standard deviation",
+    "confidence_intervals": "Subject-cluster percentile bootstrap, including the primary score",
+    "dataset_adapter": "generic_csv",
+    "excluded_target_values": [
+      5
+    ],
+    "graph_models": "Interim sensor-descriptor graph: one BVP, EDA, and TEMP node; aligned HC/NVG/HVG descriptor blocks with presence masks; complete directed inter-sensor edges. This is not the raw visibility topology.",
+    "importance": "Permutation importance on untouched outer-test data",
+    "inner_selection": "Every predeclared candidate is independently tuned inside the same grouped folds, then every tuned candidate is evaluated on every outer LOSO subject; stratified when classification permits",
+    "outer_evaluation": "LeaveOneGroupOut by configured subject column",
+    "preprocessing": "Training-fold median imputation; zero-variance removal for classical tabular models; scaling where model requires it",
+    "primary_evaluation_unit": "Trial-level predictions with equal subject weighting; window predictions are aggregated before candidate comparison",
+    "shap": "SHAP explanation on untouched outer-test data using outer-training background only",
+    "statistical_tests": "Paired subject-cluster permutation with Holm correction",
+    "target_mapping": {
+      "high": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "low": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "task_kind": "binary",
+    "task_preset_set": "sam_1_9"
+  },
+  "candidate_count": 10,
+  "configuration": {
+    "analyses": {
+      "class_distribution": false,
+      "correlations": false,
+      "permutation_importance": {
+        "enabled": false,
+        "models": [
+          "xgboost"
+        ],
+        "repeats": 10
+      },
+      "shap": {
+        "background_size": 100,
+        "enabled": false,
+        "max_test_samples": 0,
+        "models": [
+          "xgboost"
+        ],
+        "save_local_values": false,
+        "top_k": 10
+      },
+      "statistical_permutation_repeats": 10000,
+      "statistical_tests": true
+    },
+    "data": {
+      "input_modes": [
+        "windowed",
+        "aggregated"
+      ],
+      "min_trials_per_subject": 6,
+      "trial_policy": "common"
+    },
+    "evaluation": {
+      "bootstrap_repeats": 1000,
+      "inner_splits": 3,
+      "max_outer_folds": 0,
+      "n_jobs": 1,
+      "quick": false,
+      "seed": 42,
+      "show_progress": true
+    },
+    "models": {
+      "device": "cpu",
+      "enabled": [
+        "gat"
+      ],
+      "graph_batch_size": 32,
+      "graph_device": "auto",
+      "graph_eval_batch_size": 128,
+      "graph_max_epochs": 30,
+      "graph_min_delta": 1e-05,
+      "graph_min_epochs": 5,
+      "graph_patience": 8,
+      "graph_representations": [
+        "hc",
+        "nvg",
+        "hvg",
+        "hc+nvg",
+        "hc+hvg"
+      ],
+      "parameter_overrides": {},
+      "representations": [
+        "hc",
+        "nvg",
+        "hvg",
+        "hc+nvg",
+        "hc+hvg"
+      ]
+    },
+    "output": {
+      "keep_checkpoint_after_completion": false,
+      "save_checkpoints": true,
+      "save_descriptive_reports": true,
+      "save_explainability_fold_details": false,
+      "save_inner_search_details": false,
+      "save_manifest": true,
+      "save_permutation_importance": true,
+      "save_shap": true,
+      "save_split_assignments": false,
+      "save_subject_results": true,
+      "save_summary": true,
+      "save_trial_predictions": true,
+      "save_window_predictions": false
+    },
+    "paths": {
+      "input_files": [
+        "G:\\NIKOO BHI\\New New\\features\\emognition_features_w60_o30.csv"
+      ],
+      "input_globs": [],
+      "output_dir": "G:\\NIKOO BHI\\New New\\model_results",
+      "resume_from": null,
+      "run_name": null
+    },
+    "schema": {
+      "adapter": "generic_csv",
+      "aggregation_columns": [
+        "subject_id",
+        "emotion",
+        "movie_order_index"
+      ],
+      "condition_casefold": true,
+      "condition_column": "emotion",
+      "dataset_id": "physiological_features",
+      "excluded_conditions": [
+        "BASELINE",
+        "NEUTRAL"
+      ],
+      "expected_feature_counts": {
+        "hc": 29,
+        "hvg": 48,
+        "nvg": 48
+      },
+      "feature_prefixes": {
+        "hc": "hc_",
+        "hvg": "hvg_",
+        "nvg": "nvg_"
+      },
+      "graph_node_aliases": {
+        "ppg": "bvp",
+        "skt": "temp"
+      },
+      "graph_node_tokens": [
+        "bvp",
+        "eda",
+        "temp"
+      ],
+      "manifest_validation": true,
+      "numeric_target_max": 9,
+      "numeric_target_min": 1,
+      "pass_through_columns": [
+        "emotion",
+        "movie_order_index",
+        "window_id",
+        "window_start_sec",
+        "window_end_sec"
+      ],
+      "representations": {
+        "hc": [
+          "hc"
+        ],
+        "hc+hvg": [
+          "hc",
+          "hvg"
+        ],
+        "hc+nvg": [
+          "hc",
+          "nvg"
+        ],
+        "hvg": [
+          "hvg"
+        ],
+        "nvg": [
+          "nvg"
+        ]
+      },
+      "subject_column": "subject_id",
+      "target_columns": {
+        "arousal": "sam_arousal",
+        "valence": "sam_valence"
+      },
+      "trial_id_columns": [
+        "subject_id",
+        "movie_order_index",
+        "emotion"
+      ],
+      "window_id_column": "window_id"
+    },
+    "selection": {
+      "candidates": [
+        {
+          "input_id": "*",
+          "input_mode": "windowed",
+          "model_name": "gat",
+          "name": "gat__windowed__hc",
+          "representation": "hc"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "windowed",
+          "model_name": "gat",
+          "name": "gat__windowed__nvg",
+          "representation": "nvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "windowed",
+          "model_name": "gat",
+          "name": "gat__windowed__hvg",
+          "representation": "hvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "windowed",
+          "model_name": "gat",
+          "name": "gat__windowed__hc+nvg",
+          "representation": "hc+nvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "windowed",
+          "model_name": "gat",
+          "name": "gat__windowed__hc+hvg",
+          "representation": "hc+hvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "aggregated",
+          "model_name": "gat",
+          "name": "gat__aggregated__hc",
+          "representation": "hc"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "aggregated",
+          "model_name": "gat",
+          "name": "gat__aggregated__nvg",
+          "representation": "nvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "aggregated",
+          "model_name": "gat",
+          "name": "gat__aggregated__hvg",
+          "representation": "hvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "aggregated",
+          "model_name": "gat",
+          "name": "gat__aggregated__hc+nvg",
+          "representation": "hc+nvg"
+        },
+        {
+          "input_id": "*",
+          "input_mode": "aggregated",
+          "model_name": "gat",
+          "name": "gat__aggregated__hc+hvg",
+          "representation": "hc+hvg"
+        }
+      ],
+      "classification_metric": "subject_class_macro_recall",
+      "evaluation_unit": "trial",
+      "regression_metric": "subject_macro_mae"
+    },
+    "task": {
+      "kind": "binary",
+      "preset_set": "sam_1_9",
+      "targets": [
+        "valence",
+        "arousal"
+      ]
+    }
+  },
+  "configuration_hash": "3a9bf4d8f5",
+  "dependencies": {
+    "numpy": "2.3.4",
+    "pandas": "2.3.3",
+    "python": "3.11.0",
+    "scikit-learn": "1.9.0",
+    "scipy": "1.17.1",
+    "shap": "0.51.0",
+    "torch": "2.9.1",
+    "torch-geometric": "2.6.1",
+    "xgboost": "3.2.0"
+  },
+  "elapsed_seconds": 18146.031167499954,
+  "finished_utc": "2026-10-10T14:24:54.456038+00:00",
+  "framework": "thesis_ml",
+  "framework_version": "3.0.0",
+  "inputs": [
+    {
+      "dataset_id": "physiological_features",
+      "input_id": "emognition_features_w60_o30",
+      "metadata": {
+        "manifest_path": "G:\\NIKOO BHI\\New New\\features\\emognition_features_w60_o30.manifest.json",
+        "manifest_sha256": "bae37c725e0f79778450bdf9a439232fa54b34601da84ba69cf4b716a86651b9",
+        "overlap_sec": 30.0,
+        "window_sec": 60.0
+      },
+      "path_hint": "emognition_features_w60_o30.csv",
+      "rows": 746,
+      "sha256": "696bc752766107182d96bef9323345bb58a97a574a6e83ddffbc9718583a321f",
+      "subjects": 42,
+      "trials": 332
+    }
+  ],
+  "reportable_final_run": true,
+  "resolved_task_preset": {
+    "class_groups": {
+      "high": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "low": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "excluded_values": [
+      5
+    ],
+    "positive_class": "high"
+  },
+  "started_utc": "2026-10-10T09:22:28.425217+00:00",
+  "status": "complete",
+  "target_count": 2
+}

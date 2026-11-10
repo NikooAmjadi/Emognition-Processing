@@ -1,0 +1,2 @@
+input_id,trial_policy,rows_before,rows_after,trials_before,trials_after,common_trials,rows_after_subject_policy,trials_after_subject_policy,subjects_after_subject_policy
+deap_features_w60_o30,common,1280,1280,1280,1280,1280,1280,1280,32
